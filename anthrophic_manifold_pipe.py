@@ -13,7 +13,7 @@ import os
 import requests
 import json
 from typing import List, Union, Generator, Iterator
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import sseclient
 
 from open_webui.utils.misc import pop_system_message
@@ -32,7 +32,7 @@ MAX_COMBINED_TOKENS = 64000
 
 class Pipe:
     class Valves(BaseModel):
-        ANTHROPIC_API_KEY: str = ""
+        ANTHROPIC_API_KEY: str = Field(default="")
 
     def __init__(self):
         self.type = "manifold"
@@ -40,11 +40,7 @@ class Pipe:
         self.name = "anthropic/"
 
         self.valves = self.Valves(
-            **{
-                "ANTHROPIC_API_KEY": os.getenv(
-                    "ANTHROPIC_API_KEY", "your-api-key-here"
-                ),
-            }
+            **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "")}
         )
         self.url = "https://api.anthropic.com/v1/messages"
         self.update_headers()
