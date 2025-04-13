@@ -92,15 +92,15 @@ class Pipe:
                 "source": {"type": "url", "url": image_data["url"]},
             }
 
-    def pipe(
-        self, user_message: str, model_id: str, messages: List[dict], body: dict
-    ) -> Union[str, Generator, Iterator]:
+    def pipe(self, body: dict) -> Union[str, Generator, Iterator]:
         try:
             # Remove unnecessary keys
             for key in ["user", "chat_id", "title"]:
                 body.pop(key, None)
 
-            system_message, messages = pop_system_message(messages)
+            model_id = body["model"][body["model"].find(".") + 1 :]
+
+            system_message, messages = pop_system_message(body["messages"])
 
             processed_messages = []
             image_count = 0
