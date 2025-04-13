@@ -1,12 +1,12 @@
 """
-title: Anthropic Manifold Pipeline
+title: Anthropic Manifold Pipe
 author: justinh-rahb, sriparashiva
 date: 2024-06-20
 version: 1.4
 license: MIT
-description: A pipeline for generating text and processing images using the Anthropic API.
+description: A pipeline for generating text and processing images using the Anthropic API. Modified from https://github.com/open-webui/pipelines/blob/main/examples/pipelines/providers/anthropic_manifold_pipeline.py
 requirements: requests, sseclient-py
-environment_variables: ANTHROPIC_API_KEY, ANTHROPIC_THINKING_BUDGET_TOKENS, ANTHROPIC_ENABLE_THINKING
+environment_variables: ANTHROPIC_API_KEY
 """
 
 import os
@@ -16,7 +16,7 @@ from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
 import sseclient
 
-from utils.pipelines.main import pop_system_message
+from open_webui.utils.misc import pop_system_message
 
 REASONING_EFFORT_BUDGET_TOKEN_MAP = {
     "none": None,
@@ -30,7 +30,7 @@ REASONING_EFFORT_BUDGET_TOKEN_MAP = {
 MAX_COMBINED_TOKENS = 64000
 
 
-class Pipeline:
+class Pipe:
     class Valves(BaseModel):
         ANTHROPIC_API_KEY: str = ""
 
@@ -62,22 +62,16 @@ class Pipeline:
             {"id": "claude-3-opus-20240229", "name": "claude-3-opus"},
             {"id": "claude-3-sonnet-20240229", "name": "claude-3-sonnet"},
             {"id": "claude-3-5-haiku-20241022", "name": "claude-3.5-haiku"},
+            {"id": "claude-3-5-haiku-latest", "name": "claude-3.5-haiku"},
             {"id": "claude-3-5-sonnet-20241022", "name": "claude-3.5-sonnet"},
             {"id": "claude-3-7-sonnet-20250219", "name": "claude-3.7-sonnet"},
+            {"id": "claude-3-7-sonnet-latest", "name": "claude-3.7-sonnet"},
         ]
-
-    async def on_startup(self):
-        print(f"on_startup:{__name__}")
-        pass
-
-    async def on_shutdown(self):
-        print(f"on_shutdown:{__name__}")
-        pass
 
     async def on_valves_updated(self):
         self.update_headers()
 
-    def pipelines(self) -> List[dict]:
+    def pipes(self) -> List[dict]:
         return self.get_anthropic_models()
 
     def process_image(self, image_data):
