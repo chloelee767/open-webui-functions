@@ -42,15 +42,6 @@ class Pipe:
         self.valves = self.Valves(
             **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "")}
         )
-        self.url = "https://api.anthropic.com/v1/messages"
-        self.update_headers()
-
-    def update_headers(self):
-        self.headers = {
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-            "x-api-key": self.valves.ANTHROPIC_API_KEY,
-        }
 
     def get_anthropic_models(self):
         return [
@@ -63,9 +54,6 @@ class Pipe:
             {"id": "claude-3-7-sonnet-20250219", "name": "claude-3.7-sonnet"},
             {"id": "claude-3-7-sonnet-latest", "name": "claude-3.7-sonnet"},
         ]
-
-    async def on_valves_updated(self):
-        self.update_headers()
 
     def pipes(self) -> List[dict]:
         return self.get_anthropic_models()
@@ -154,6 +142,12 @@ class Pipe:
                 **({"system": str(system_message)} if system_message else {}),
                 "stream": body.get("stream", False),
             }
+            headers = {
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+                "x-api-key": self.valves.ANTHROPIC_API_KEY,
+            }
+            url = "https://api.anthropic.com/v1/messages"
 
             if body.get("stream", False):
                 supports_thinking = "claude-3-7" in model_id
@@ -192,17 +186,17 @@ class Pipe:
                         del payload["top_k"]
                     if "top_p" in payload:
                         del payload["top_p"]
-                return self.stream_response(payload)
+                return self.stream_response(url, headers, payload)
             else:
-                return self.get_completion(payload)
+                return self.get_completion(url, headers, payload)
         except Exception as e:
             return f"Error: {e}"
 
-    def stream_response(self, payload: dict) -> Generator:
+    def stream_response(self, url: str, headers: dict, payload: dict) -> Generator:
         """Used for title and tag generation"""
         try:
             response = requests.post(
-                self.url, headers=self.headers, json=payload, stream=True
+                url, headers=headers, json=payload, stream=True
             )
             print(f"{response} for {payload}")
 
@@ -241,9 +235,9 @@ class Pipe:
             print(error_message)
             yield error_message
 
-    def get_completion(self, payload: dict) -> str:
+    def get_completion(self, url: str, headers: dict, payload: dict) -> str:
         try:
-            response = requests.post(self.url, headers=self.headers, json=payload)
+            response = requests.post(url, headers=headers, json=payload)
             print(response, payload)
             if response.status_code == 200:
                 res = response.json()
