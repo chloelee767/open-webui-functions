@@ -53,6 +53,7 @@ class Pipe:
             {"id": "claude-3-5-sonnet-20241022", "name": "claude-3.5-sonnet"},
             {"id": "claude-3-7-sonnet-20250219", "name": "claude-3.7-sonnet"},
             {"id": "claude-3-7-sonnet-latest", "name": "claude-3.7-sonnet"},
+            {"id": "claude-sonnet-4-20250514", "name": "claude-4-sonnet"},
         ]
 
     def pipes(self) -> List[dict]:
@@ -195,9 +196,7 @@ class Pipe:
     def stream_response(self, url: str, headers: dict, payload: dict) -> Generator:
         """Used for title and tag generation"""
         try:
-            response = requests.post(
-                url, headers=headers, json=payload, stream=True
-            )
+            response = requests.post(url, headers=headers, json=payload, stream=True)
             print(f"{response} for {payload}")
 
             if response.status_code == 200:
