@@ -2,7 +2,7 @@
 title: Anthropic Manifold Pipe
 author: justinh-rahb, sriparashiva
 date: 2024-06-20
-version: 1.4
+version: 1.5
 license: MIT
 description: A pipeline for generating text and processing images using the Anthropic API. Modified from https://github.com/open-webui/pipelines/blob/main/examples/pipelines/providers/anthropic_manifold_pipeline.py
 requirements: requests, sseclient-py
